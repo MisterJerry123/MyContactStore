@@ -8,25 +8,128 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
+import com.misterjerry.mycontactstore.core.util.KoreanChoseongSearcher
+
+import com.misterjerry.mycontactstore.domain.model.Contact
+
+
+
 class HomeViewModel(
+
     private val repository: ContactRepository
+
 ): ViewModel() {
 
+
+
     private var _state = MutableStateFlow(HomeState())
+
     val state = _state.asStateFlow()
 
+    
+
+    private var allContacts: List<Contact> = emptyList()
+
+    private var currentQuery: String = ""
+
+
+
     init {
+
         loadContacts()
+
     }
+
+
 
     fun loadContacts() {
+
         viewModelScope.launch(Dispatchers.IO) {
+
             val initData = repository.getAllContacts()
-            _state.value = _state.value.copy(contactList = initData)
+
+            allContacts = initData
+
+            filterContacts()
+
         }
+
     }
 
+    
 
+        fun onSearchQueryChanged(query: String) {
 
+    
+
+            currentQuery = query
+
+    
+
+            filterContacts()
+
+    
+
+        }
+
+    
+
+        
+
+    
+
+        private fun filterContacts() {
+
+    
+
+            val filtered = if (currentQuery.isBlank()) {
+
+    
+
+                allContacts
+
+    
+
+            } else {
+
+    
+
+                allContacts.filter { contact ->
+
+    
+
+                    KoreanChoseongSearcher.match(contact.name, currentQuery) || 
+
+    
+
+                    contact.phoneNumber.contains(currentQuery)
+
+    
+
+                }
+
+    
+
+            }
+
+    
+
+            _state.value = _state.value.copy(
+
+    
+
+                contactList = filtered,
+
+    
+
+                searchQuery = currentQuery
+
+    
+
+            )
+
+    
+
+        }
 
 }

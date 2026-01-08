@@ -38,5 +38,9 @@ fun HomeRoot(
         }
     }
 
-    HomeScreen(state = state.value)
+    HomeScreen(
+        state = state.value,
+        searchQuery = state.value.searchQuery,
+        onSearchQueryChanged = viewModel::onSearchQueryChanged
+    )
 }

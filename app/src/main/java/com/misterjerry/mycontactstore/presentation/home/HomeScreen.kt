@@ -15,10 +15,10 @@ import com.misterjerry.mycontactstore.domain.model.Contact
 @Composable
 fun HomeScreen(
     state: HomeState,
+    searchQuery: String,
+    onSearchQueryChanged: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    var searchQuery by remember { mutableStateOf("") }
-
     Scaffold(
         modifier = modifier.fillMaxSize()
     ) { innerPadding ->
@@ -30,7 +30,7 @@ fun HomeScreen(
         ) {
             OutlinedTextField(
                 value = searchQuery,
-                onValueChange = { searchQuery = it },
+                onValueChange = onSearchQueryChanged,
                 modifier = Modifier.fillMaxWidth(),
                 placeholder = { Text("이름 또는 초성으로 검색") },
                 leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
@@ -83,5 +83,9 @@ private fun HomeScreenPreview() {
         Contact("김철수", "010-2222-3333"),
         Contact("이영희", "010-4444-5555")
     )
-    HomeScreen(state = HomeState(contactList =  mockContacts))
+    HomeScreen(
+        state = HomeState(contactList =  mockContacts),
+        searchQuery = "",
+        onSearchQueryChanged = {}
+    )
 }
