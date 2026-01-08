@@ -41,6 +41,7 @@ fun HomeRoot(
     HomeScreen(
         state = state.value,
         searchQuery = state.value.searchQuery,
-        onSearchQueryChanged = viewModel::onSearchQueryChanged
+        onSearchQueryChanged = viewModel::onSearchQueryChanged,
+        onToggleFavorite = viewModel::onToggleFavorite
     )
 }

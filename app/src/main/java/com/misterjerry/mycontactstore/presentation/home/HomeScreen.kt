@@ -5,9 +5,13 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.outlined.Star
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.misterjerry.mycontactstore.domain.model.Contact
@@ -17,6 +21,7 @@ fun HomeScreen(
     state: HomeState,
     searchQuery: String,
     onSearchQueryChanged: (String) -> Unit,
+    onToggleFavorite: (Contact) -> Unit,
     modifier: Modifier = Modifier
 ) {
     Scaffold(
@@ -44,7 +49,10 @@ fun HomeScreen(
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 items(state.contactList) { contact ->
-                    ContactItem(contact = contact)
+                    ContactItem(
+                        contact = contact,
+                        onToggleFavorite = { onToggleFavorite(contact) }
+                    )
                 }
             }
         }
@@ -52,25 +60,43 @@ fun HomeScreen(
 }
 
 @Composable
-fun ContactItem(contact: Contact) {
+fun ContactItem(
+    contact: Contact,
+    onToggleFavorite: () -> Unit
+) {
     Card(
         modifier = Modifier.fillMaxWidth(),
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surfaceVariant
         )
     ) {
-        Column(
-            modifier = Modifier.padding(16.dp)
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            Text(
-                text = contact.name,
-                style = MaterialTheme.typography.titleMedium
-            )
-            Text(
-                text = contact.phoneNumber,
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
+            Column(
+                modifier = Modifier.weight(1f)
+            ) {
+                Text(
+                    text = contact.name,
+                    style = MaterialTheme.typography.titleMedium
+                )
+                Text(
+                    text = contact.phoneNumber,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+            
+            IconButton(onClick = onToggleFavorite) {
+                Icon(
+                    imageVector = if (contact.isFavorite) Icons.Default.Star else Icons.Outlined.Star,
+                    contentDescription = if (contact.isFavorite) "즐겨찾기 해제" else "즐겨찾기 추가",
+                    tint = if (contact.isFavorite) Color(0xFFFFD700) else LocalContentColor.current
+                )
+            }
         }
     }
 }
@@ -79,13 +105,14 @@ fun ContactItem(contact: Contact) {
 @Composable
 private fun HomeScreenPreview() {
     val mockContacts = listOf(
-        Contact("홍길동", "010-1234-5678"),
-        Contact("김철수", "010-2222-3333"),
-        Contact("이영희", "010-4444-5555")
+        Contact("홍길동", "010-1234-5678", true),
+        Contact("김철수", "010-2222-3333", false),
+        Contact("이영희", "010-4444-5555", false)
     )
     HomeScreen(
         state = HomeState(contactList =  mockContacts),
         searchQuery = "",
-        onSearchQueryChanged = {}
+        onSearchQueryChanged = {},
+        onToggleFavorite = {}
     )
 }

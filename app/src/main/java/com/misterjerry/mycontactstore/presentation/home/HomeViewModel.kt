@@ -78,7 +78,18 @@ class HomeViewModel(
 
     
 
-        private fun filterContacts() {
+        fun onToggleFavorite(contact: Contact) {
+        allContacts = allContacts.map {
+            if (it.name == contact.name && it.phoneNumber == contact.phoneNumber) {
+                it.copy(isFavorite = !it.isFavorite)
+            } else {
+                it
+            }
+        }
+        filterContacts()
+    }
+    
+    private fun filterContacts() {
 
     
 
