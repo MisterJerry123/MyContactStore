@@ -5,7 +5,7 @@ plugins {
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.jetbrains.kotlin.serialization)
-
+    alias(libs.plugins.ksp)
 }
 
 android {
@@ -77,5 +77,10 @@ dependencies {
 
     implementation("io.insert-koin:koin-android:${koin_version}")
     implementation("io.insert-koin:koin-androidx-compose:${koin_version}")
+
+    //room
+    implementation(libs.androidx.room.runtime)
+    implementation(libs.androidx.room.ktx)
+    ksp(libs.androidx.room.compiler)
 
 }
