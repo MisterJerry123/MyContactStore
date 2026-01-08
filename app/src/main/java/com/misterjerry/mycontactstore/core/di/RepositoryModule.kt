@@ -6,5 +6,5 @@ import org.koin.android.ext.koin.androidContext
 import org.koin.dsl.module
 
 val repositoryModule = module {
-    single<ContactRepository> { ContactRepositoryImpl(androidContext()) }
+    single<ContactRepository> { ContactRepositoryImpl(androidContext(), get()) }
 }
