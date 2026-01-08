@@ -13,134 +13,62 @@ import com.misterjerry.mycontactstore.core.util.KoreanChoseongSearcher
 import com.misterjerry.mycontactstore.domain.model.Contact
 
 
-
 class HomeViewModel(
-
     private val repository: ContactRepository
-
-): ViewModel() {
-
-
+) : ViewModel() {
 
     private var _state = MutableStateFlow(HomeState())
-
     val state = _state.asStateFlow()
 
-    
-
     private var allContacts: List<Contact> = emptyList()
-
     private var currentQuery: String = ""
 
-
-
-    init {
-
-        loadContacts()
-
-    }
-
-
-
     fun loadContacts() {
-
         viewModelScope.launch(Dispatchers.IO) {
-
             val initData = repository.getAllContacts()
-
             allContacts = initData
-
             filterContacts()
-
         }
-
     }
 
-    
-
-        fun onSearchQueryChanged(query: String) {
-
-    
-
-            currentQuery = query
-
-    
-
-            filterContacts()
-
-    
-
-        }
-
-    
-
-        
-
-    
-
-        fun onToggleFavorite(contact: Contact) {
-        allContacts = allContacts.map {
-            if (it.name == contact.name && it.phoneNumber == contact.phoneNumber) {
-                it.copy(isFavorite = !it.isFavorite)
-            } else {
-                it
-            }
-        }
+    fun onSearchQueryChanged(query: String) {
+        currentQuery = query
         filterContacts()
     }
-    
-    private fun filterContacts() {
 
-    
-
-            val filtered = if (currentQuery.isBlank()) {
-
-    
-
-                allContacts
-
-    
-
+    fun onToggleFavorite(contact: Contact) {
+        viewModelScope.launch(Dispatchers.IO) {
+            val newIsFavorite = !contact.isFavorite
+            if (newIsFavorite) {
+                repository.addBookmark(contact)
             } else {
-
-    
-
-                allContacts.filter { contact ->
-
-    
-
-                    KoreanChoseongSearcher.match(contact.name, currentQuery) || 
-
-    
-
-                    contact.phoneNumber.contains(currentQuery)
-
-    
-
-                }
-
-    
-
+                repository.removeBookmark(contact)
             }
-
-    
-
-            _state.value = _state.value.copy(
-
-    
-
-                contactList = filtered,
-
-    
-
-                searchQuery = currentQuery
-
-    
-
-            )
-
-    
-
+            
+            // Update local state
+            allContacts = allContacts.map {
+                if (it.name == contact.name && it.phoneNumber == contact.phoneNumber) {
+                    it.copy(isFavorite = newIsFavorite)
+                } else {
+                    it
+                }
+            }
+            filterContacts()
         }
+    }
 
+    private fun filterContacts() {
+        val filtered = if (currentQuery.isBlank()) {
+            allContacts
+        } else {
+            allContacts.filter { contact ->
+                KoreanChoseongSearcher.match(contact.name, currentQuery) ||
+                        contact.phoneNumber.contains(currentQuery)
+            }
+        }
+        _state.value = _state.value.copy(
+            contactList = filtered,
+            searchQuery = currentQuery
+        )
+    }
 }
